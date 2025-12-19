@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Watch Together</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+        <form id="profile-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" required>
+
+            <label for="gender">Gender:</label>
+            <select id="gender">
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="profile-pic">Profile Picture:</label>
+            <input type="file" id="profile-pic" accept="image/*">
+            <img id="profile-pic-preview" src="" alt="Profile Picture Preview" style="max-width: 100px; max-height: 100px; display: none;">
+
+            <button type="submit">Save Profile</button>
+        </form>
+        <button id="logout-btn">Logout</button>
+    </div>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Watch Together</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to your Dashboard!</h1>
+        <p>Hello, <span id="user-name"></span>!</p>
+        <button id="create-room-btn">Create Room</button>
+        <button id="join-room-btn">Join Room</button>
+        <button id="edit-profile-btn">Edit Profile</button>
+        <button id="logout-btn">Logout</button>
+
+        <div id="join-room-section" style="display: none;">
+            <h2>Join a Room</h2>
+            <input type="text" id="room-id-input" placeholder="Enter Room ID (5 digits)" maxlength="5">
+            <button id="submit-join-room-btn">Join</button>
+            <p id="join-room-error" style="color: red;"></p>
+        </div>
+    </div>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

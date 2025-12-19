@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room - Watch Together</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container room-container">
+        <h1 id="room-title">Room ID: <span id="room-id-display"></span></h1>
+        <div class="video-section">
+            <div id="player"></div>
+            <div class="video-controls" id="admin-controls" style="display: none;">
+                <input type="text" id="video-link-input" placeholder="YouTube or Google Drive Video Link">
+                <button id="load-video-btn">Load Video</button>
+                <button id="play-pause-btn">Play/Pause</button>
+                <input type="range" id="seek-slider" min="0" max="100" value="0" class="slider">
+                <button id="end-room-btn">End Room</button>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <h2>Chat</h2>
+            <div class="chat-messages" id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button id="send-chat-btn">Send</button>
+        </div>
+        <button id="leave-room-btn">Leave Room</button>
+    </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
