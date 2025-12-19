@@ -17,36 +17,86 @@ function generateRoomId() {
     return Math.random().toString(36).substring(2, 7).toUpperCase(); // 5-digit alphanumeric
 }
 
+// Function to generate a unique device ID and store it in local storage
+function generateDeviceId() {
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+        deviceId = 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem("deviceId", deviceId);
+    }
+    return deviceId;
+}
+
+// Function to store device ID for a logged-in user in Firestore
+async function linkDeviceToUser(uid, deviceId) {
+    const userDevicesRef = doc(db, "userDevices", uid);
+    await setDoc(userDevicesRef, { [deviceId]: true }, { merge: true });
+}
+
+// Function to check if the current device is linked to the user (optional, for future server-side analysis)
+async function isDeviceLinked(uid, deviceId) {
+    const userDevicesRef = doc(db, "userDevices", uid);
+    const docSnap = await getDoc(userDevicesRef);
+    return docSnap.exists() && docSnap.data()[deviceId] === true;
+}
+
 // --- Authentication ---
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
+    const currentDeviceId = generateDeviceId(); // Ensure device ID is generated on every load
+
     if (user) {
         console.log("User is logged in:", user.uid);
+        // Link the current device to the user in Firestore
+        linkDeviceToUser(user.uid, currentDeviceId);
+
         const userProfileRef = doc(db, "users", user.uid);
         const userProfileSnap = await getDoc(userProfileRef);
 
         if (!userProfileSnap.exists() && window.location.pathname !== "/profile.html") {
             // New user, redirect to profile setup
             redirectTo("/profile.html");
-        } else if (window.location.pathname === "/login.html" || window.location.pathname === "/index.html") {
-            // Logged in and on login/index page, redirect to dashboard
+        } else if (window.location.pathname === "/login.html" || window.location.pathname === "/index.html" || window.location.pathname === "/signup.html") {
+            // Logged in and on login/index/signup page, redirect to dashboard
             redirectTo("/dashboard.html");
         }
     } else {
         console.log("User is logged out.");
-        if (window.location.pathname !== "/login.html" && window.location.pathname !== "/index.html") {
-            // Logged out and not on login/index page, redirect to login
+        if (window.location.pathname !== "/login.html" && window.location.pathname !== "/index.html" && window.location.pathname !== "/signup.html") {
+            // Logged out and not on login/index/signup page, redirect to login
             redirectTo("/login.html");
         }
+        // If on index.html, login.html, or signup.html and logged out, do nothing, allow them to see login/signup buttons.
+        // Firebase handles session persistence. If a user was previously signed in on this device and hasn't
+        // explicitly logged out, onAuthStateChanged will detect the active session and 'user' will not be null.
+        // Therefore, explicit 'auto-login' logic for a logged out user based solely on device ID is not
+        // directly implemented here, as it typically requires server-side authentication for security reasons.
     }
 });
 
 // Handle Google Sign-In button click
 document.getElementById("google-signin-btn")?.addEventListener("click", async () => {
+    console.log("Sign-in button clicked.");
     try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        console.log("Google Sign-In successful.", result);
+        const user = result.user;
+        console.log("User object:", user);
     } catch (error) {
-        console.error("Error during Google Sign-In:", error);
+        console.error("Error during Google Sign-In:", error.code, error.message);
+    }
+});
+
+// Handle Google Sign-Up button click
+document.getElementById("google-signup-btn")?.addEventListener("click", async () => {
+    console.log("Sign-up button clicked.");
+    try {
+        const result = await signInWithPopup(auth, provider);
+        console.log("Google Sign-Up successful.", result);
+        const user = result.user;
+        console.log("User object:", user);
+    } catch (error) {
+        console.error("Error during Google Sign-Up:", error.code, error.message);
     }
 });
 
@@ -55,6 +105,7 @@ document.querySelectorAll("#logout-btn")?.forEach(button => {
     button.addEventListener("click", async () => {
         try {
             await signOut(auth);
+            localStorage.removeItem("deviceId"); // Clear device ID on logout
             redirectTo("/login.html");
         } catch (error) {
             console.error("Error during logout:", error);
@@ -362,7 +413,7 @@ if (window.location.pathname === "/room.html") {
             videoId = url.split("youtu.be/")[1].split("&")[0];
         } else if (url.includes("drive.google.com")) {
             // For Google Drive, this is more complex. Direct embedding usually requires
-            // the file to be publicly accessible and an embed link. 
+            // the file to be publicly accessible and an embed link.
             // For simplicity, we'll assume a direct embeddable URL is provided or convert.
             // This part would need actual Google Drive API integration for robust solution.
             // For now, if it's a direct mp4 link, we can use it.
@@ -380,7 +431,7 @@ if (window.location.pathname === "/room.html") {
                 return;
             }
         }
-        
+
         if (videoId) {
             player.loadVideoById(videoId, time);
             if (isPlaying) {
@@ -410,19 +461,6 @@ if (window.location.pathname === "/room.html") {
             chatInput.value = "";
         }
     });
-
-    function updateChatDisplay(chatMessages) {
-        const chatMessagesDiv = document.getElementById("chat-messages");
-        chatMessagesDiv.innerHTML = "";
-        const messagesArray = Object.values(chatMessages).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        messagesArray.forEach(msg => {
-            const p = document.createElement("p");
-            const date = new Date(msg.timestamp);
-            p.textContent = `[${date.toLocaleTimeString()}] ${msg.name}: ${msg.message}`;
-            chatMessagesDiv.appendChild(p);
-        });
-        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; // Auto-scroll to bottom
-    }
 
     document.getElementById("leave-room-btn")?.addEventListener("click", async () => {
         if (confirm("Are you sure you want to leave this room?")) {
