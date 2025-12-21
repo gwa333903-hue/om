@@ -110,7 +110,7 @@ function initProfilePage(user, userProfile) {
         const name = nameInput.value;
         const dob = dobInput.value;
         const gender = genderSelect.value;
-        let profilePictureUrl = profilePicPreview.src === "" ? "" : profilePicPreview.src;
+        let profilePictureUrl = profilePicPreview.src === "" ? "" : profilePictureUrl;
 
         const birthDate = new Date(dob);
         const today = new Date();
@@ -186,7 +186,7 @@ function initRoomPage(user, userProfile) {
             document.getElementById("admin-controls").style.display = "none";
         }
 
-        if (typeof updateChatDisplay === 'function') {
+        if (typeof updateChatDisplay === "function") {
             updateChatDisplay(roomData.chat || {});
         }
         
