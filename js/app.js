@@ -1,7 +1,7 @@
 // app.js - Main application logic (GitHub Pages compatible)
 
 /* ================= BASE PATH ================= */
-const BASE_PATH = "/om"; // 🔴 IMPORTANT: your repo name
+const BASE_PATH = ""; // 🔴 IMPORTANT: your repo name
 
 /* ================= IMPORTS ================= */
 import {
@@ -74,6 +74,27 @@ function initDashboardPage(user, profile) {
 
   document.getElementById("edit-profile-btn")?.addEventListener("click", () => {
     redirectTo("/profile.html");
+  });
+
+  document.getElementById("join-room-btn")?.addEventListener("click", () => {
+    const joinRoomSection = document.getElementById("join-room-section");
+    if (joinRoomSection) {
+      joinRoomSection.style.display = joinRoomSection.style.display === "none" ? "block" : "none";
+    }
+  });
+
+  document.getElementById("submit-join-room-btn")?.addEventListener("click", () => {
+    const roomIdInput = document.getElementById("room-id-input");
+    const joinRoomError = document.getElementById("join-room-error");
+    if (roomIdInput && joinRoomError) {
+      const roomId = roomIdInput.value.trim();
+      if (roomId.length === 5) {
+        // In a real application, you would validate the room ID here
+        redirectTo(`/room.html?roomId=${roomId}`);
+      } else {
+        joinRoomError.textContent = "Please enter a 5-digit Room ID.";
+      }
+    }
   });
 }
 
