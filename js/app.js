@@ -2,6 +2,8 @@
 
 import { auth, provider, signInWithPopup, onAuthStateChanged, signOut, db, rtdb, storage, doc, getDoc, setDoc, updateDoc, ref, push, onValue, off, set, update, remove, storageRef, uploadBytes, getDownloadURL } from "./firebase-config.js";
 
+const BASE_PATH = "/om";
+
 let currentUser = null;
 let currentRoomId = null;
 let player;
@@ -10,7 +12,7 @@ let youtubePlayerReady = false;
 
 // --- Utility Functions ---
 function redirectTo(path) {
-    window.location.href = path;
+    window.location.href = BASE_PATH + path;
 }
 
 function generateRoomId() {
@@ -303,7 +305,8 @@ function initRoomPage(user, userProfile) {
 // --- Main Auth Router ---
 onAuthStateChanged(auth, async (user) => {
     const currentPath = window.location.pathname;
-    const isPublicPage = ["/login.html", "/signup.html", "/index.html"].includes(currentPath);
+    const relativeCurrentPath = currentPath.startsWith(BASE_PATH) ? currentPath.substring(BASE_PATH.length) : currentPath;
+    const isPublicPage = ["/", "/login.html", "/signup.html", "/index.html"].includes(relativeCurrentPath);
 
     if (user) {
         currentUser = user;
@@ -313,7 +316,7 @@ onAuthStateChanged(auth, async (user) => {
         const userProfileSnap = await getDoc(userProfileRef);
         const userProfile = userProfileSnap.data();
 
-        if (!userProfile && currentPath !== "/profile.html") {
+        if (!userProfile && relativeCurrentPath !== "/profile.html") {
             return redirectTo("/profile.html");
         }
         
@@ -322,9 +325,9 @@ onAuthStateChanged(auth, async (user) => {
         }
         
         // If we are on the correct page, initialize it
-        if (currentPath === "/dashboard.html") initDashboardPage(user, userProfile);
-        else if (currentPath === "/profile.html") initProfilePage(user, userProfile);
-        else if (currentPath === "/room.html") initRoomPage(user, userProfile);
+        if (relativeCurrentPath === "/dashboard.html") initDashboardPage(user, userProfile);
+        else if (relativeCurrentPath === "/profile.html") initProfilePage(user, userProfile);
+        else if (relativeCurrentPath === "/room.html") initRoomPage(user, userProfile);
 
     } else {
         currentUser = null;
